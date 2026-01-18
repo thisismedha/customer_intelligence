@@ -29,7 +29,7 @@ venv\Scripts\Activate.ps1
 
 You should see (venv) in your terminal.
 
-#### 4️⃣ Install dependencies
+### 4️⃣ Install dependencies
 pip install -r requirements.txt
 
 #### Deactivate the environment
