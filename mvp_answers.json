@@ -1,0 +1,178 @@
+{
+  "generated_at": "2026-01-18T15:50:26.400925",
+  "analysis_summary": {
+    "total_emails": 20,
+    "total_brands": 7,
+    "brands": [
+      "Banana Republic Factory",
+      "Victoria\u2019s Secret Semi-Annual Sale",
+      "Old Navy",
+      "Target",
+      "Walmart Customer Experience",
+      "VS & PINK Rewards",
+      "Victoria's Secret"
+    ]
+  },
+  "mvp_answers": {
+    "question_1": {
+      "by_brand": {
+        "Banana Republic Factory": {
+          "answer": "Insufficient data",
+          "trend": "stable",
+          "evidence": "No discount information available in the provided data.",
+          "aggression_score": 0.0,
+          "first_discount": null,
+          "latest_discount": null
+        },
+        "Victoria\u2019s Secret Semi-Annual Sale": {
+          "answer": "Insufficient data",
+          "trend": "stable",
+          "evidence": "No discount information available in the provided data.",
+          "aggression_score": 0.0,
+          "first_discount": null,
+          "latest_discount": null
+        },
+        "Old Navy": {
+          "answer": "Insufficient data",
+          "trend": "stable",
+          "evidence": "No discount information available in the provided data.",
+          "aggression_score": 0.0,
+          "first_discount": null,
+          "latest_discount": null
+        },
+        "Target": {
+          "answer": "Insufficient data",
+          "trend": "stable",
+          "evidence": "No discount information available in the provided data.",
+          "aggression_score": 0.0,
+          "first_discount": null,
+          "latest_discount": null
+        },
+        "Walmart Customer Experience": {
+          "answer": "Insufficient data",
+          "trend": "stable",
+          "evidence": "No discount information available in the provided data.",
+          "aggression_score": 0.0,
+          "first_discount": null,
+          "latest_discount": null
+        },
+        "VS & PINK Rewards": {
+          "answer": "Insufficient data",
+          "trend": "stable",
+          "evidence": "No discount information available in the provided data.",
+          "aggression_score": 0.0,
+          "first_discount": null,
+          "latest_discount": null
+        },
+        "Victoria's Secret": {
+          "answer": "Insufficient data",
+          "trend": "stable",
+          "evidence": "No discount information available in the provided data.",
+          "aggression_score": 0.0,
+          "first_discount": null,
+          "latest_discount": null
+        }
+      },
+      "summary": "No brands show any discounting activity in the provided data, so it's impossible to determine if discounting is becoming more aggressive over time."
+    },
+    "question_2": {
+      "answer": "Cannot determine - no engagement data",
+      "observable_patterns": "No sequence changes noted. All brands maintain a consistent email frequency throughout the observed period.",
+      "recommendation": "Track opens/clicks to analyze post-inactivity behavior"
+    },
+    "question_3": {
+      "by_brand": {
+        "Banana Republic Factory": {
+          "answer": "No",
+          "month_end_pct": 0.0,
+          "quarter_end_pct": 0.0,
+          "clustering_score": 0.0
+        },
+        "Victoria\u2019s Secret Semi-Annual Sale": {
+          "answer": "No",
+          "month_end_pct": 0.0,
+          "quarter_end_pct": 0.0,
+          "clustering_score": 0.0
+        },
+        "Old Navy": {
+          "answer": "No",
+          "month_end_pct": 0.0,
+          "quarter_end_pct": 0.0,
+          "clustering_score": 0.0
+        },
+        "Target": {
+          "answer": "No",
+          "month_end_pct": 0.0,
+          "quarter_end_pct": 0.0,
+          "clustering_score": 0.0
+        },
+        "Walmart Customer Experience": {
+          "answer": "No",
+          "month_end_pct": 0.0,
+          "quarter_end_pct": 0.0,
+          "clustering_score": 0.0
+        },
+        "VS & PINK Rewards": {
+          "answer": "No",
+          "month_end_pct": 0.0,
+          "quarter_end_pct": 0.0,
+          "clustering_score": 0.0
+        },
+        "Victoria's Secret": {
+          "answer": "No",
+          "month_end_pct": 0.0,
+          "quarter_end_pct": 0.0,
+          "clustering_score": 0.0
+        }
+      },
+      "summary": "No brands show any clustering of promotions around month-end or quarter-end. All month_end_frequency and quarter_end_frequency values are 0.0."
+    },
+    "question_4": {
+      "by_brand": {
+        "Banana Republic Factory": {
+          "answer": "Real",
+          "authenticity_score": 1.0,
+          "avg_urgency": 0.0,
+          "evidence": "The urgency score is consistently 0, suggesting an absence of artificial urgency."
+        },
+        "Victoria\u2019s Secret Semi-Annual Sale": {
+          "answer": "Real",
+          "authenticity_score": 1.0,
+          "avg_urgency": 0.0,
+          "evidence": "The urgency score is consistently 0, suggesting an absence of artificial urgency."
+        },
+        "Old Navy": {
+          "answer": "Real",
+          "authenticity_score": 1.0,
+          "avg_urgency": 0.0,
+          "evidence": "The urgency score is consistently 0, suggesting an absence of artificial urgency."
+        },
+        "Target": {
+          "answer": "Real",
+          "authenticity_score": 1.0,
+          "avg_urgency": 0.0,
+          "evidence": "The urgency score is consistently 0, suggesting an absence of artificial urgency."
+        },
+        "Walmart Customer Experience": {
+          "answer": "Real",
+          "authenticity_score": 1.0,
+          "avg_urgency": 0.0,
+          "evidence": "The urgency score is consistently 0, suggesting an absence of artificial urgency."
+        },
+        "VS & PINK Rewards": {
+          "answer": "Real",
+          "authenticity_score": 1.0,
+          "avg_urgency": 0.0,
+          "evidence": "The urgency score is consistently 0, suggesting an absence of artificial urgency."
+        },
+        "Victoria's Secret": {
+          "answer": "Real",
+          "authenticity_score": 1.0,
+          "avg_urgency": 0.0,
+          "evidence": "The urgency score is consistently 0, suggesting an absence of artificial urgency."
+        }
+      },
+      "summary": "All brands consistently have an urgency score of 0, indicating that urgency language is not used in their email marketing, thus suggesting authenticity in the absence of artificial urgency."
+    }
+  }
+}
