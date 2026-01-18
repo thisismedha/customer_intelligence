@@ -205,3 +205,10 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+
+# GCP credentials
+credentials.json
+service-account.json
+gcp-credentials.json
