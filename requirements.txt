@@ -35,3 +35,14 @@ black
 flake8
 # PDF Processing
 PyPDF2==3.0.1
+
+
+# Viz and Stats libs
+plotly 
+pandas 
+scipy 
+numpy
+
+
+
+python-dotenv

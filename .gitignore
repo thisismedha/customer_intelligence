@@ -212,3 +212,7 @@ __marimo__/
 credentials.json
 service-account.json
 gcp-credentials.json
+
+
+# Insight outputs and visualizations
+output/
