@@ -42,6 +42,7 @@ class AgentState(TypedDict):
     insights_generated: int
     visualizations_created: int
     objective: str  # What the agent is trying to accomplish
+    mode: str  # "chat" or "analysis"
 
 
 # ============================================================================
@@ -60,9 +61,9 @@ def agent_reasoning_node(state: AgentState):
         google_api_key=API_KEY,
         temperature=0
     )
-    
+    mode = state.get("mode", "chat")
     # Bind tools to LLM
-    tools = get_all_tools()
+    tools = get_all_tools(mode)
     llm_with_tools = llm.bind_tools(tools)
     
     # Invoke LLM with current conversation history
@@ -75,11 +76,11 @@ def agent_reasoning_node(state: AgentState):
 # AGENT NODE: TOOL EXECUTION
 # ============================================================================
 
-def create_tool_node():
-    """Create a node that executes tools"""
-    tools = get_all_tools()
+def create_tool_node(state: AgentState):
+    """Create a node that executes tools based on mode"""
+    mode = state.get("mode", "chat")
+    tools = get_all_tools(mode=mode)
     return ToolNode(tools)
-
 
 # ============================================================================
 # ROUTING LOGIC
@@ -112,6 +113,9 @@ def build_react_agent():
     """
     Build the ReAct agent graph.
     
+    Args:
+        mode: "chat" or "analysis" - determines available tools
+    
     Flow:
         START → agent → should_continue?
                           ├─> tools → agent (loop)
@@ -120,9 +124,9 @@ def build_react_agent():
     
     workflow = StateGraph(AgentState)
     
-    # Add nodes
+    # Add nodes with mode
     workflow.add_node("agent", agent_reasoning_node)
-    workflow.add_node("tools", create_tool_node())
+    workflow.add_node("tools", create_tool_node)
     
     # Set entry point
     workflow.set_entry_point("agent")
@@ -142,7 +146,6 @@ def build_react_agent():
     
     return workflow.compile()
 
-
 # ============================================================================
 # AGENT EXECUTION
 # ============================================================================
@@ -150,11 +153,120 @@ def build_react_agent():
 class EmailIntelligenceAgent:
     """High-level interface for the ReAct agent"""
     
-    def __init__(self):
+    def __init__(self, mode: str = "chat"):
+        """
+        Initialize agent
+        
+        Args:
+            mode: "chat" for Q&A conversations, "analysis" for autonomous insights
+        """
+        self.mode = mode
         self.graph = build_react_agent()
-        self.system_prompt = self._build_system_prompt()
+        self.system_prompt = self._build_system_prompt(mode)
     
-    def _build_system_prompt(self) -> str:
+    def _build_system_prompt(self, mode: str = "chat") -> str:
+        """
+        Build system prompt - schema is discovered dynamically
+        
+        Args:
+            mode: "chat" for conversational Q&A, "analysis" for autonomous insights
+        """
+        
+        if mode == "chat":
+            return self._build_chat_prompt()
+        else:
+            return self._build_analysis_prompt()
+
+    def _build_chat_prompt(self) -> str:
+        """System prompt for conversational mode"""
+        return """You are an expert email competitive intelligence analyst having a conversation with a user.
+
+Your role: Answer questions about promotional email data in a clear, conversational way.
+
+⚠️ CRITICAL INSTRUCTION: After using any tools, you MUST provide a final response in natural, conversational language. NEVER return raw tool outputs, JSON, or database results directly to the user. Always interpret and explain your findings.
+
+# CONVERSATIONAL GUIDELINES
+
+**Be Conversational:**
+- Answer questions naturally, like a colleague would
+- Don't save insights to the database (that's for scheduled reports)
+- Focus on answering the current question, not generating comprehensive reports
+- If you create visualizations, describe what they show in plain language
+
+**Tool Usage Philosophy:**
+- Only use tools when needed to answer the user's question
+- Don't call every tool just because they're available
+- For simple questions, use minimal tools (maybe just sql_query)
+- For complex questions, use multiple tools thoughtfully
+
+# WORKFLOW
+
+**STEP 1: Understand the Question**
+- What is the user actually asking?
+- Do I need to query data, or can I answer from context?
+
+**STEP 2: Use Tools Selectively**
+- If database structure is unclear: inspect_schema()
+- To get data: sql_query(query="...", cache_key="...")
+- To show trends/patterns: statistical_analysis(cache_key="...")
+- To visualize: create_visualization(cache_key="...")
+- DON'T use save_insight in conversations!
+
+**STEP 3: Respond Naturally**
+- ALWAYS provide a final response in plain English after using tools
+- Explain your findings conversationally
+- If you made a chart, describe what it shows
+- Offer to dive deeper if they want more detail
+- NEVER return raw JSON or tool outputs as your final answer
+
+# AVAILABLE TOOLS
+
+1. **inspect_schema()** - Get database structure (use if uncertain about tables/columns)
+2. **sql_query(query, cache_key)** - Fetch data from database
+3. **statistical_analysis(analysis_type, column, cache_key)** - Analyze trends/distributions
+4. **create_visualization(viz_description, cache_key = "all_discounts")** - Create charts
+
+NOTE: save_insight is NOT available in chat mode. It's only for scheduled analysis runs.
+
+# EXAMPLE CONVERSATIONS
+
+**User:** "Which brand discounts the most?"
+
+**Correct Flow:**
+1. Think: "I need to query the database for average discounts by brand"
+2. Use tool: sql_query(...)
+3. PROVIDE FINAL ANSWER: "Based on the data, Banana Republic Factory has the highest average discount at 52.3%, followed by Gap at 47.1% and Old Navy at 41.2%. Would you like me to create a chart showing all brands?"
+
+**User:** "Show me urgency patterns by brand"
+
+**Correct Flow:**
+1. Think: "I need to analyze urgency usage across brands"
+2. Use tools: sql_query(...), create_visualization(...)
+3. PROVIDE FINAL ANSWER: "I've created a bar chart showing urgency frequency by brand. The data reveals that Brand X uses urgent language in 80% of their emails, while Brand Y uses it in only 35% of theirs. This suggests Brand X may be overusing urgency tactics, which could desensitize customers."
+
+**CRITICAL:** After calling tools, you MUST provide a conversational summary. Don't just return tool outputs!
+
+# BEST PRACTICES
+
+✅ DO:
+- Answer the question asked, not more
+- Use cache_key to reuse data efficiently
+- **ALWAYS provide a final conversational response after using tools**
+- Describe what visualizations show in plain language
+- Offer relevant follow-up possibilities
+- Be helpful and conversational
+
+❌ DON'T:
+- Call save_insight (not for chat!)
+- **Return raw JSON or tool outputs as your answer**
+- Return tool results without interpretation
+- Over-analyze when a simple answer suffices
+- Use every tool on every question
+- Generate comprehensive reports unless asked
+
+**REMEMBER:** The user wants a conversation, not raw data dumps. After using tools, ALWAYS synthesize the results into a natural language response."""
+    
+    def _build_analysis_prompt(self) -> str:
         """Build concise system prompt - schema is discovered dynamically"""
         
         return """You are an expert email competitive intelligence analyst.
@@ -184,7 +296,7 @@ Your objective: Analyze promotional email data to discover strategic insights ab
 2. statistical_analysis(analysis_type="trend", column="discount_percent", cache_key="discount_trends")
    → Uses cached data, NO re-query needed!
 
-3. create_visualization(viz_type="line", x_column="date", y_column="discount_percent", cache_key="discount_trends")
+3. create_visualization(viz_description, cache_key = "all_discounts") - Create charts
    → Uses same cached data again!
 ```
 
@@ -197,7 +309,7 @@ Your objective: Analyze promotional email data to discover strategic insights ab
    - IMPORTANT: Always provide cache_key to enable data reuse!
    - Returns: JSON with results + cache_key confirmation
    
-3. **create_visualization(viz_type, title, x_column, y_column, cache_key=None, data_query=None, ...)**
+4. **create_visualization(viz_description, cache_key = None)** 
    - Option A (PREFERRED): Pass cache_key to reuse cached data
    - Option B: Pass data_query to fetch fresh data
    
@@ -245,9 +357,10 @@ Step 2: sql_query(query="SELECT date, discount_percent, brand FROM emails WHERE 
 Step 3: statistical_analysis(analysis_type="trend", column="discount_percent", group_by="brand", cache_key="all_discounts")
   → Uses cached data, no re-query
 
-Step 4: create_visualization(viz_type="line", x_column="date", y_column="discount_percent", color_column="brand", cache_key="all_discounts")
-  → Uses same cached data
 
+4. **create_visualization(viz_description, cache_key = "all_discounts")** - Create charts
+
+   - Describe the chart naturally: "line chart of discounts over time by brand"
 Step 5: save_insight(category="discount_trend", finding="...", metric_value=15.0, ...)
 ```
 
@@ -285,7 +398,7 @@ For each insight:
 - Reuse that data by passing the same cache_key to statistical_analysis and create_visualization
 - Save the insight with save_insight tool
 
-Be thorough but efficient. Generate 8-12 high-quality, data-backed insights.
+Be thorough but efficient. Generate 5-8 high-quality, data-backed insights.
 Avoid running the same query multiple times - use cache_key!"""
         
         initial_state = {
@@ -294,7 +407,8 @@ Avoid running the same query multiple times - use cache_key!"""
             ],
             "insights_generated": 0,
             "visualizations_created": 0,
-            "objective": objective
+            "objective": objective,
+            "mode":self.mode
         }
         
         print("🤖 Starting autonomous analysis...\n")
@@ -330,114 +444,3 @@ Avoid running the same query multiple times - use cache_key!"""
             "full_conversation": messages
         }
     
-    def answer_question(self, question: str) -> dict:
-        """
-        Answer a specific user question using the agent.
-        
-        Args:
-            question: User's question about the email data
-            
-        Returns:
-            dict with answer and any generated artifacts
-        """
-        
-        # Clear cache before starting
-        global _QUERY_CACHE
-        _QUERY_CACHE.clear()
-        
-        initial_state = {
-            "messages": [
-                HumanMessage(content=f"{self.system_prompt}\n\nUser Question: {question}")
-            ],
-            "insights_generated": 0,
-            "visualizations_created": 0,
-            "objective": question
-        }
-        
-        print(f"🤖 Processing question: {question}\n")
-        
-        final_state = self.graph.invoke(initial_state)
-        messages = final_state["messages"]
-        
-        # Extract answer
-        answer = None
-        for msg in reversed(messages):
-            if isinstance(msg, AIMessage) and not hasattr(msg, "tool_calls"):
-                answer = msg.content
-                break
-        
-        # Extract visualizations created
-        viz_paths = []
-        for msg in messages:
-            if isinstance(msg, ToolMessage) and "viz_path" in msg.content:
-                try:
-                    result = json.loads(msg.content)
-                    if "viz_path" in result:
-                        viz_paths.append(result["viz_path"])
-                except:
-                    pass
-        
-        return {
-            "question": question,
-            "answer": answer,
-            "visualizations": viz_paths,
-            "steps_taken": len(messages)
-        }
-
-
-# ============================================================================
-# PRETTY PRINTING
-# ============================================================================
-
-def print_agent_conversation(messages: Sequence[BaseMessage], max_content_len: int = 300):
-    """Pretty print the agent's reasoning process"""
-    
-    print("\n" + "="*80)
-    print("🧠 AGENT REASONING TRACE")
-    print("="*80 + "\n")
-    
-    for i, msg in enumerate(messages, 1):
-        if isinstance(msg, HumanMessage):
-            print(f"👤 HUMAN (Step {i}):")
-            print(f"   {msg.content[:max_content_len]}...")
-            
-        elif isinstance(msg, AIMessage):
-            if hasattr(msg, "tool_calls") and len(msg.tool_calls) > 0:
-                print(f"\n🤖 AGENT REASONING (Step {i}):")
-                if msg.content:
-                    print(f"   Thought: {msg.content[:max_content_len]}")
-                
-                for tool_call in msg.tool_calls:
-                    print(f"\n   🔧 Action: {tool_call['name']}")
-                    args = tool_call.get('args', {})
-                    for key, value in args.items():
-                        val_str = str(value)[:100]
-                        print(f"      - {key}: {val_str}")
-            else:
-                print(f"\n✅ AGENT FINAL ANSWER (Step {i}):")
-                print(f"   {msg.content[:max_content_len]}...")
-                
-        elif isinstance(msg, ToolMessage):
-            print(f"\n   📊 Observation:")
-            try:
-                result = json.loads(msg.content)
-                if "error" in result:
-                    print(f"      ❌ Error: {result['error']}")
-                else:
-                    # Pretty print key results
-                    if "rows" in result:
-                        print(f"      ✓ Retrieved {result['rows']} rows")
-                    if "cache_key" in result:
-                        print(f"      ✓ Cached as: '{result['cache_key']}'")
-                    if "viz_path" in result:
-                        print(f"      ✓ Created: {result['viz_path']}")
-                    if "success" in result:
-                        print(f"      ✓ Success")
-                    if "tables" in result:
-                        print(f"      ✓ Found {len(result['tables'])} tables")
-            except:
-                print(f"      {msg.content[:200]}")
-        
-        print()
-    
-    print("="*80 + "\n")
