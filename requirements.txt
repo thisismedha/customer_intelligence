@@ -22,8 +22,6 @@ pydantic-settings
 # Frontend
 streamlit
 
-# Database (optional - we'll use local)
-chromadb
 
 # Utilities
 python-dotenv
@@ -44,5 +42,3 @@ scipy
 numpy
 
 
-
-python-dotenv

@@ -5,7 +5,9 @@ Session-aware wrapper around the ReAct agent for multi-turn conversations
 
 import uuid
 from typing import Optional, Dict, List
-
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 from agent import EmailIntelligenceAgent, build_react_agent
 from conversation_manager import ConversationManager, generate_session_title

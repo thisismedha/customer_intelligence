@@ -6,6 +6,7 @@ Agent tools for email intelligence analysis
 import os
 import sqlite3
 import pandas as pd
+from llm import get_llm
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -21,7 +22,7 @@ from langchain.tools import tool
 from dotenv import load_dotenv
 load_dotenv()
 
-from langchain_google_genai import ChatGoogleGenerativeAI
+
 
 
 # ============================================================================
@@ -186,10 +187,6 @@ def sql_query(query: str, cache_key: Optional[str] = None, db_path: str = "email
 # ============================================================================
 # TOOL 2: CREATE VISUALIZATION (with cache support)
 # ============================================================================
-#==============================
-# Load API Key
-
-API_KEY = os.getenv("GOOGLE_API_KEY")
 
 @tool
 def create_visualization(
@@ -288,11 +285,7 @@ fig.update_layout(template='plotly_white', height=500)
 """
         
         # Call LLM to generate code
-        llm = ChatGoogleGenerativeAI(
-            model="gemini-2.5-flash",
-            google_api_key=API_KEY,
-            temperature=0
-        )
+        llm = get_llm()
         
         # FIXED: Extract content from LLM response
         response = llm.invoke(code_gen_prompt)

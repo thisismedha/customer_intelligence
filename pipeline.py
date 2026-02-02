@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage
+from llm import get_llm
 
 load_dotenv()
 API_KEY = os.getenv("GOOGLE_API_KEY")
@@ -305,11 +306,7 @@ def extract_all_emails(
     Returns:
         Number of successfully parsed emails
     """
-    llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
-        google_api_key=API_KEY,
-        temperature=0
-    )
+    llm = get_llm()
     
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()

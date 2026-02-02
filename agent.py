@@ -8,13 +8,13 @@ import operator
 import json
 from datetime import datetime
 import os
-from dotenv import load_dotenv
-load_dotenv()
+
 
 from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import ToolNode
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMessage
+from llm import get_llm
+
 
 from tools import get_all_tools
 
@@ -26,11 +26,6 @@ from tools import get_all_tools
 _QUERY_CACHE = {}  # Stores query results by cache_key
 
 
-#==============================
-# Load API Key
-
-API_KEY = os.getenv("GOOGLE_API_KEY")
-#==============================
 
 # ============================================================================
 # AGENT STATE
@@ -45,6 +40,7 @@ class AgentState(TypedDict):
     mode: str  # "chat" or "analysis"
 
 
+
 # ============================================================================
 # AGENT NODE: REASONING
 # ============================================================================
@@ -55,12 +51,8 @@ def agent_reasoning_node(state: AgentState):
     1. Uses a tool to gather information
     2. Provides final answer
     """
-    
-    llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
-        google_api_key=API_KEY,
-        temperature=0
-    )
+
+    llm = get_llm()
     mode = state.get("mode", "chat")
     # Bind tools to LLM
     tools = get_all_tools(mode)
@@ -196,7 +188,7 @@ Your role: Answer questions about promotional email data in a clear, conversatio
 **Tool Usage Philosophy:**
 - Only use tools when needed to answer the user's question
 - Don't call every tool just because they're available
-- For simple questions, use minimal tools (maybe just sql_query)
+- For simple questions, use minimal tools
 - For complex questions, use multiple tools thoughtfully
 
 # WORKFLOW
