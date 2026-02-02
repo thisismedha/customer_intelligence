@@ -1,0 +1,48 @@
+# Core LangChain & LangGraph
+langchain
+langchain-core
+langgraph
+langchain-google-genai
+
+# Gmail API
+google-auth-oauthlib 
+google-auth 
+google-api-python-client
+
+# Tools
+duckduckgo-search
+requests
+
+# API Framework
+fastapi
+uvicorn[standard]==0.27.0
+pydantic
+pydantic-settings
+
+# Frontend
+streamlit
+
+# Database (optional - we'll use local)
+chromadb
+
+# Utilities
+python-dotenv
+python-multipart
+
+# Development
+pytest
+black
+flake8
+# PDF Processing
+PyPDF2==3.0.1
+
+
+# Viz and Stats libs
+plotly 
+pandas 
+scipy 
+numpy
+
+
+
+python-dotenv
